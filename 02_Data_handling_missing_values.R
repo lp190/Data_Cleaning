@@ -67,8 +67,23 @@ head(punjab_data2) # Barnala GDPs missing values, for eg
 
 
 
+## Think hard why could the data be missing. 
+## Missing completely at random vs Missing at random???? Think!
 
 
+###########################################################################
 
+# Check out the punjab growth rate data
+head(pun_growth)
 
-  
+#### There are missing data with NA. It's virtually impossible to catch all the 
+#    data with your eyes. So, better to visualize and check them out, which is
+#    exactly what I am going to do in next steps.
+
+# Data frame with information on whether the value in each cell is missing
+
+missing_by_column <- pun_gdp %>%
+  is.na %>%   # check if each cell is na
+  as_data_frame %>%  # Converstion to data-frame
+  mutate(row_number = 1:nrow(.)) %>% #add a column with the row number
+  gather(variable, is_missing, -row_number) # Conversion of wide data to narrow
