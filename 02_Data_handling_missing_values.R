@@ -8,6 +8,10 @@ setwd("A:/Datasets/Data Cleaning")
 library(tidyverse)
 library(mice)  # package for categorical and numeric imputations
 
+### Other ways of plotting missing values
+library(naniar)
+library(visdat)
+
 # set seed for reproducibility
 set.seed(5)
 
@@ -80,10 +84,62 @@ head(pun_growth)
 #    data with your eyes. So, better to visualize and check them out, which is
 #    exactly what I am going to do in next steps.
 
-# Data frame with information on whether the value in each cell is missing
+### vis_dat; visualizes the whole df at once
 
+vis_dat(punjab_data2)  ## Quite a nice plot, missing data discernible
+vis_dat(austin_pet)  ## This data set is quite big for that, can't 
+                      # really plot the missing data.
+
+
+## vis_miss provides a summary of whether the data is missing or no
+vis_miss(punjab_data2)
+vis_miss(airquality)
+vis_miss(austin_pet)  ## This data too large for visualizing
+
+## gg_miss_var
+gg_miss_var(punjab_data2)
+gg_miss_var(austin_pet, facet = outcome_type)  + 
+  labs(y ="Guckmal missing values")  
+## Works here, SUPER!!
+
+# Data frame with information on whether the value in each cell is missing
 missing_by_column <- pun_gdp %>%
   is.na %>%   # check if each cell is na
-  as_data_frame %>%  # Converstion to data-frame
+  as_tibble() %>%  # Converstion to data-frame (used to be as_data_frame)
   mutate(row_number = 1:nrow(.)) %>% #add a column with the row number
   gather(variable, is_missing, -row_number) # Conversion of wide data to narrow
+                                            # Schick function from tidyr package
+## Plot the missing values in our data frame
+ggplot(missing_by_column, aes(x = variable, y = row_number,
+  fill = is_missing)) + geom_tile() + theme_minimal() + 
+  scale_fill_grey(name = "", labels = c("Present", "Missing")) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, size = 8)) +
+  labs(x = "Variables in Dataset", y = "Rows/observations")
+
+### Three missing data from Barnala district! SCHICK oder?
+
+### Plot the missing values from the punjab_growth
+pun_growth   # Seems lots of missing data, mal schauen
+
+missing_by_col <- pun_growth %>%
+  is.na %>%
+  as_tibble() %>% # Converstion to data-frame
+  mutate(row_number = 1:nrow(.)) %>% # add a clumn with the row number
+  gather(variable, is_missing, -row_number) # Conversion of wide data to narrow
+  
+
+### Plot the missing values in our pun_grwoth data frame
+ggplot(missing_by_col, aes(x = variable, y = row_number,
+  fill = is_missing)) + geom_tile() + theme_minimal() + 
+  scale_fill_grey(name = "", labels = c("Present", "Missing")) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, size = 8)) +
+  labs(x = "Variables in Dataset", y = "Rows/observations")
+
+
+
+
+
+## Now what are the randomly missing values; what should be there??
+## Imputations
+
+# Automate the imputation process using MICE
