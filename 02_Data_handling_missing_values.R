@@ -1,4 +1,9 @@
 ## Data Cleaning Part 2 ##
+## Data sets used 
+ #-> 1. gdp_Punjab2.csv 
+ #-> 2. aac_shelter_outcomes.csv
+ # Both datasets, you can find in Datasets
+
 
 rm(list=ls())
 getwd()
