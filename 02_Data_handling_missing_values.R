@@ -6,7 +6,8 @@ getwd()
 setwd("A:/Datasets/Data Cleaning")
 
 library(tidyverse)
-library(mice)  # package for categorical and numeric imputations
+library(mice)
+library(dplyr)# package for categorical and numeric imputations
 
 ### Other ways of plotting missing values
 library(naniar)
@@ -25,6 +26,12 @@ austin_pet <- read_csv("aac_shelter_outcomes.csv")
 View(punjab_data2) # Bunch of missing values for this one
 str(punjab_data2)
 head(punjab_data2)
+
+# There is some kind of error, so rename the column Fatehgarh Sahib
+names(punjab_data2)[7] <- "Fatehgarh_sahib"
+names(punjab_data2)[19] <- "Sahibzaha_ajit_singh_nagar"
+names(punjab_data2)[21] <- "Sahid_bhagat_singh_nagar"
+names(punjab_data2)[22] <- "Taran_tarn"
 
 # Gdp growth rate of Bhatinda, 2003-04
 punjab_data2$Bathinda[[11]]
@@ -143,3 +150,53 @@ ggplot(missing_by_col, aes(x = variable, y = row_number,
 ## Imputations
 
 # Automate the imputation process using MICE
+
+## First create an empty model
+##................... failed at first
+
+
+### Changed all the col names, which i have done avove looks good
+
+## Against trying to create an empty model
+empty_model <- mice(pun_gdp, maxit = 0)
+method <- empty_model$method
+predictorMatrix <- empty_model_gdp$predictorMatrix
+
+# first making guesses
+imputed_data <- mice(pun_gdp, method, predictorMatrix, m = 5)
+
+# then pick one for each variable
+imputed_data <- complete(imputed_data)
+
+# check out the imputed data
+head(imputed_data)
+
+
+#### It failed!!
+
+
+########## try with gdp_growth
+head(pun_growth)
+
+# Initialize an empty model to take the parameters from
+empty <- mice(pun_growth, maxit = 0)
+method <- empty$method
+predictorMatrix <- empty$predictorMatrix
+
+# first make a bunch of guess
+imputed <- mice(pun_growth, method, predictorMatrix, m = 5)
+
+# then pick one for each var
+imputed <- complete(imputed)
+head(imputed)
+
+
+## Worked here!! WOW!
+## Nevertheless check out with the graph
+gg_miss_var(pun_gdp)
+gg_miss_var(imputed_data)
+
+## Check for pun_growth
+gg_miss_var(pun_growth)
+gg_miss_var(imputed) ## This was the successfully 
+                      # imputed dataset
