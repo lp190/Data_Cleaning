@@ -114,22 +114,52 @@ gg_miss_var(austin_pet, facet = outcome_type)  +
   labs(y ="Guckmal missing values")  
 ## Works here, SUPER!!
 
-# Data frame with information on whether the value in each cell is missing
-missing_by_column <- pun_gdp %>%
-  is.na %>%   # check if each cell is na
-  as_tibble() %>%  # Converstion to data-frame (used to be as_data_frame)
-  mutate(row_number = 1:nrow(.)) %>% #add a column with the row number
-  gather(variable, is_missing, -row_number) # Conversion of wide data to narrow
-                                            # Schick function from tidyr package
-## Plot the missing values in our data frame
-ggplot(missing_by_column, aes(x = variable, y = row_number,
+
+# df with information on whether the value in each cell is missing
+missi_by_col <- pun_gdp %>%
+  is.na %>% # chech if each cell is NA
+  as_tibble()%>% #### as_data_frame() deprecated to tibble(); converstion to df
+  mutate(row_number = 1:nrow(.)) %>% # add a column with the row number
+  gather(variable, is_missing, -row_number) # Converstion of wide data to narrow
+
+# Plot th missing values in our data frame
+ggplot(missi_by_col, aes(x = variable, y = row_number, 
   fill = is_missing)) + geom_tile() + theme_minimal() + 
   scale_fill_grey(name = "", labels = c("Present", "Missing")) +
   theme(axis.text.x = element_text(angle = 45, vjust = 0.5, size = 8)) +
-  labs(x = "Variables in Dataset", y = "Rows/observations")
+  labs(x = "Variables in Dataset", y = "Observations")
+
 
 ### Three missing data from Barnala district! SCHICK oder?
 
+pun_gdp$Barnala = ifelse(pun_gdp$Barnala == "NA", NA, pun_gdp$Barnala)
+
+## Multivariate Imputation By Chained Equations
+### Imputations of the missing data
+## Initialize and empty model
+emp <- mice(pun_gdp, maxit = 0)
+method <- emp$method
+predictorMatrix <- emp$predictorMatrix
+
+imputed_data <- mice(pun_gdp, method, predictorMatrix, m = 3)
+
+imputed_data <- complete(imputed_data)
+
+### Imputations failed above, no basis for imputations apparently, i suppose
+
+## Multivariate Imputation By Chained Equations
+
+## Lets do it for growth
+
+empty <- mice(pun_growth, maxit = 0)
+method <- empty$method
+predictorMatrix <- empty$predictorMatrix
+
+# first make a bunch of guess
+imputed <- mice(pun_growth, method, predictorMatrix, m = 5)
+
+# then pick one for each var
+imputed <- complete(imputed)
 ### Plot the missing values from the punjab_growth
 pun_growth   # Seems lots of missing data, mal schauen
 
@@ -138,6 +168,7 @@ missing_by_col <- pun_growth %>%
   as_tibble() %>% # Converstion to data-frame
   mutate(row_number = 1:nrow(.)) %>% # add a clumn with the row number
   gather(variable, is_missing, -row_number) # Conversion of wide data to narrow
+
   
 
 ### Plot the missing values in our pun_grwoth data frame
@@ -162,16 +193,7 @@ ggplot(missing_by_col, aes(x = variable, y = row_number,
 
 ### Changed all the col names, which i have done avove looks good
 
-## Against trying to create an empty model
-empty_model <- mice(pun_gdp, maxit = 0)
-method <- empty_model$method
-predictorMatrix <- empty_model_gdp$predictorMatrix
 
-# first making guesses
-imputed_data <- mice(pun_gdp, method, predictorMatrix, m = 5)
-
-# then pick one for each variable
-imputed_data <- complete(imputed_data)
 
 # check out the imputed data
 head(imputed_data)
@@ -189,7 +211,7 @@ method <- empty$method
 predictorMatrix <- empty$predictorMatrix
 
 # first make a bunch of guess
-imputed <- mice(pun_growth, method, predictorMatrix, m = 5)
+imputed <- mice(pun_growth, method, predictorMatrix, m = 7)
 
 # then pick one for each var
 imputed <- complete(imputed)
@@ -197,6 +219,7 @@ head(imputed)
 
 
 ## Worked here!! WOW!
+
 ## Nevertheless check out with the graph
 gg_miss_var(pun_gdp)
 gg_miss_var(imputed_data)
