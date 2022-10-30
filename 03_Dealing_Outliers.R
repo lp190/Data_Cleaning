@@ -1,10 +1,15 @@
 #### Data Cleaning Part 3; dealing with outliers ####
 
+##
+setwd("C:/Users/Pandey/Desktop/Data Cleaning")
 
 # libraries used
 library(tidyverse)
 library(outliers)
 
+
+
+# 
 # load data
 d1 <- read_csv("deputies_dataset.csv")
 d2 <- read_csv("dirty_deputies_v2.csv")
@@ -131,6 +136,10 @@ no_outliers_d1 <- d1[d1$out_d1 == F,]
 # 2975608 obs remaining from 3014902
 # dropped 39294 obs
 
+## Save the data with no outliers for subsequent data analysis
+write.table(no_outliers_d1, file = "d1_ohne_outliers.csv",
+            sep = "\t", row.names = F)
+
 ##### 2. Analyzing outlier and inliers separately
 # subsetting data into outliers and inliers. Recommended when:
 
@@ -141,7 +150,7 @@ no_outliers_d1 <- d1[d1$out_d1 == F,]
 
 # Code to make subset of outliers and inliers
 # outliers
-d1_out <- d1[zscore_d1 > 3 | zscore_d1 < -3] # only outliers
+d1_out <- d1[zscore_d1 > 3 | zscore_d1 < -3,] # only outliers
 
 # inliers only
 d1_in <- d1[d1$out_d1 == F,]
@@ -159,6 +168,7 @@ d1[zscore_d1 >3 | zscore_d1 < -3, "receipt_value"] <- NA
 
 
 
+
 summary(d1$receipt_value) # checks for NAs
 # 39294 NAs
 # Converted to NA and now deal with the NAs
@@ -166,10 +176,10 @@ summary(d1$receipt_value) # checks for NAs
 # Maybe try and save NA -ed  dataset
 
 # try 
-## 1. write.table() 
+## 1. write.table()  this sucks, i tried
 
-write.table(d1, file = "NA-ed_d1.csv",
-            sep = "\t", row.names = F)
+# write.table(d1, file = "NA-ed_d1.csv",
+            # sep = "\t", row.names = F)
 
 ### Works  
 
@@ -191,6 +201,10 @@ write.table(d1, file = "NA-ed_d1.csv",
 
 no_outlier_d2 <- d2[d2$out_d2 == F,]
 
+# Save the no outliers data; this sucks too
+#write.table(no_outlier_d2, file = "d2_ohne_outliers.csv",
+            #sep = "\t", row.names = F)
+
 # resulting dataset has 333769 out of d2 = 339089 obs, 5329 obs dropped
 ## this could be used for empirical analysis
 
@@ -209,7 +223,17 @@ d2_in <- d2[d2$out_d2 == F,]
 
 d2[zscore_d2 > 3 | zscore_d2 < - 3, "refund_value"] <- NA
 
-## Save the NA-ed file
+## Save the NA-ed file; this sucks, i tried
 
-write.table(d2, file = "NA-ed_d2.csv",
-            sep = "\t", row.names = F)
+#write.table(d2, file = "NA-ed_d2.csv",
+            #sep = "\t", row.names = F)  # don't run this, this is a fail
+
+#############################################################################
+## Now that d1 and d2 are NA-ed for outliers
+#####################XXXXXXXXXX Imputing the NAs XXXXXXX#####################
+#####################################################################
+
+
+#### Wait, imputation does not work here at all; that was dumb
+### 
+
