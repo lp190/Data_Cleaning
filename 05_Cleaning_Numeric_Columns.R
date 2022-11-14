@@ -160,8 +160,66 @@ glimpse(airbnb_parsed)
 
 #####################################################################
 #####################################################################
+# Parsing dates and time in drone strikes data in pakistan
+# lubridate package for parsing date
+pak_drone <- read_csv("Pakistan_drone_attack_ver9.csv")
+# fix the column names, janitor would help
+pak_drone <- pak_drone %>%
+  janitor::clean_names()
+
+# check out the dataset,esp the date
+pak_drone$date[1:10]
+
+# data is in formation of day of week, month, day of month,year
+# no lubridate parsing function for handling the day of the week
+# so remove them, once parsed, can be brought back
+
+# for removing the day of the week, and following comma
+
+remove_day <- function(column){
+  no_day <- str_replace_all(column, '[A-Za-z]*day,', '')
+  return(no_day)
+}
+
+remove_day(pak_drone$date[1:10])
+
+# this works
+# now apply this function to remove day of the week, then parse the remaining 
+# data with the mdy() function
+
+# tidy dates & convert them to date format
+date <- pak_drone%>%
+  select(date) %>% #for the date date column 
+  mutate(date_formatted = remove_day(date)) %>% #remove the day of the week
+  mutate(date_formatted = mdy(date_formatted)) # convert to date format
+
+# check the heads out
+head(date)
+
+# add formatted dates to the dataframe
+pak_drone$date_formatted <- date$date_formatted
+
+### done with this dataset ###
+#########################################################################
+#########################################################################
+
+# Work on mass shooting data
+# correctly parse the date column from the mass_shootings datates
+# load data first
+
+mass_shooting <- read_csv("Mass Shootings Dataset Ver 5.csv")
+
+# fix the column names, use janitor
+mass_shooting <- mass_shooting %>%
+  janitor::clean_names()
+
+# parse the date
+date <- mass_shooting%>%
+  select(date) %>% #for the date date column 
+  mutate(date_parsed = mdy(date))
+
+# add the data to the frame
+mass_shooting$date_p <- date$date_parsed
 
 
-
-
-
+## Done with the parsing business and cleaning numeric columns
