@@ -1,6 +1,6 @@
 Moin,
 
-Welcome to my data cleaning projects. I have started data cleaning data in my free time and looking forward to make this my new hobby. Mal schauen!
+Welcome to my data cleaning projects. I have started data cleaning in my free time and looking forward to make this my new hobby. Mal schauen!
 
 
 Here, I draw from Rachael Tatman's project in Kaggle. The link is given below:
